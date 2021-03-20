@@ -7,7 +7,7 @@
             <v-btn
                 color="primary"
                 dark
-                class="mb-2"
+                class="mb-2 ml-2"
                 v-bind="attrs"
                 v-on="on"
             >
