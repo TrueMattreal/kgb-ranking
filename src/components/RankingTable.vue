@@ -1,7 +1,6 @@
 <template>
     <v-container>
-        
-
+    
         <v-row>
             <v-col>
                 <v-data-table
@@ -36,18 +35,35 @@
                     <template v-slot:item.name="{ item }">
                         <a :href="item.url" >{{item.name}}</a>
                     </template>
+                    <template v-slot:item.averageRating="{ item }">
+                        {{ toDecimal(item.averageRating) }}
+                    </template>
+                    <template v-slot:item.variance="{ item }">
+                        {{ toDecimal(item.variance) }}
+                    </template>
+                    <template v-slot:item.highestDifference="{ item }">
+                        {{ toDecimal(item.highestDifference) }}
+                    </template>
                 </v-data-table>
             </v-col>
         </v-row>
 
                 <v-row>
             <v-col>
+                <h1>gruppierte Durchschnittsbewertung</h1>
                 <ratings-grouped-chart :chart-data="grouptedRatingChartData"></ratings-grouped-chart>
             </v-col>
         </v-row>
         <v-row>
             <v-col>
+                <h1>Durchschnittsbewertung</h1>
                 <rating-overview-chart :chart-data="chartData"></rating-overview-chart>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col>
+                <h1>Standardabweichung</h1>
+                <rating-overview-chart :chart-data="varianceChart"></rating-overview-chart>
             </v-col>
         </v-row>
     </v-container>
@@ -89,14 +105,28 @@ export default {
     },
     computed: {
         chartData: function() {
-            let ratings = this.ratings.map(a => a).sort((a, b) => a.averageRatingNumber - b.averageRatingNumber)
+            let ratings = this.ratings.map(a => a).sort((a, b) => a.averageRating - b.averageRating)
             let data = {
                 labels: ratings.map(r => r.name),
                 datasets: [
                     {
-                        label: 'Spiele',
+                        label: 'Durchschnittsbewertung',
                         backgroundColor: '#0077aa',
-                        data: ratings.map(r => r.averageRatingNumber)
+                        data: ratings.map(r => r.averageRating)
+                    }
+                ],
+            }
+            return data
+        },
+        varianceChart: function() {
+            let ratings = this.ratings.map(a => a).sort((a, b) => a.variance - b.variance)
+            let data = {
+                labels: ratings.map(r => r.name),
+                datasets: [
+                    {
+                        label: 'Abweichung',
+                        backgroundColor: '#0077aa',
+                        data: ratings.map(r => r.variance)
                     }
                 ],
             }
@@ -106,7 +136,7 @@ export default {
         grouptedRatingChartData: function() {
             let groups = Array.from({length: 11}, () => 0)
             this.ratings.forEach(rating => {
-                groups[Math.round(rating.averageRatingNumber)]++
+                groups[Math.round(rating.averageRating)]++
             })
             let data = {
                 labels: Array.from({length: 10}, (_, i) => i + 1),
@@ -118,7 +148,6 @@ export default {
                     }
                 ],
             }
-            console.log(data)
             return data
         },
         ratings: function() {
@@ -137,11 +166,16 @@ export default {
                     game[playerRating.username] = playerRating.rating
                 })
                 if (gameRatings.length > 0) {
-                    game.averageRatingNumber = gameRatings.reduce((a, b) => a + b, 0) / gameRatings.length
-                    game.averageRating = this.toDecimal(gameRatings.reduce((a, b) => a + b, 0) / gameRatings.length)
+                    game.averageRating = gameRatings.reduce((a, b) => a + b, 0) / gameRatings.length
                         // deutsches Nummernformat
                         .toString().replace(".", ",")
-                    game.highestDifference = this.toDecimal(Math.max(...gameRatings) - Math.min(...gameRatings))
+                    game.highestDifference = Math.max(...gameRatings) - Math.min(...gameRatings)
+                    let total = 0
+                    for (let i = 0; i < gameRatings.length; i++) {
+                        total += Math.pow(gameRatings[i] - game.averageRating, 2)
+                    }
+                    console.log(game.name, gameRatings)
+                    game.variance = Math.sqrt(total / gameRatings.length)
                 }
                 ratings.push(game)
             })
@@ -156,7 +190,8 @@ export default {
                 { name: 'rank', text: 'Platz', value: 'rank' },
                 { name: 'name', text: 'Spiel', value: 'name' },
                 { name: 'averageRating', text: 'Durchschnittsbewertung', value: 'averageRating'},
-                { name: 'highestDifference', text: 'größte Abweichung', value: 'highestDifference'}
+                { name: 'highestDifference', text: 'größte Abweichung', value: 'highestDifference'},
+                { name: 'variance', text: 'Standardabweichung', value: 'variance'}
             ]
             this.profiles.forEach(profile => {
                 header.push({
