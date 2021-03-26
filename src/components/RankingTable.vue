@@ -7,7 +7,7 @@
                     :headers="headers"
                     :items="ratings"
                     :disable-pagination="true"
-                    :hide-default-footer="true"
+                    :hide-default-footer="false"
                     :sort-by="['rank', 'name']"
                     class="elevation-1"
                     dense
@@ -44,11 +44,25 @@
                     <template v-slot:item.highestDifference="{ item }">
                         {{ toDecimal(item.highestDifference) }}
                     </template>
+                    <template v-slot:items="{ item }">
+                        <td>{{ item }}</td>
+                    </template>
+                    <template v-slot:body.append="{}">
+                        <tr>
+                            <th class="title"></th>
+                            <th class="title"></th>
+                            <th class="title">Ø {{ toDecimal(totalAvarage) }}</th>
+                            <th class="title"></th>
+                            <th class="title"></th>
+                            <th v-for="user in profiles" :key="user.name">
+                                Ø {{ toDecimal(playerRatings.filter(pr => pr.username === user).reduce((a,b) => a + b.rating, 0) / playerRatings.filter(pr => pr.username === user).length) }}
+                            </th>
+                        </tr>
+                    </template>
                 </v-data-table>
             </v-col>
         </v-row>
-
-                <v-row>
+        <v-row>
             <v-col>
                 <h1>gruppierte Durchschnittsbewertung</h1>
                 <ratings-grouped-chart :chart-data="grouptedRatingChartData"></ratings-grouped-chart>
@@ -56,7 +70,7 @@
         </v-row>
         <v-row>
             <v-col>
-                <h1>Durchschnittsbewertung</h1>
+                <h1>Durchschnittsbewertung (insgesamt: {{ toDecimal(totalAvarage) }} )</h1>
                 <rating-overview-chart :chart-data="chartData"></rating-overview-chart>
             </v-col>
         </v-row>
@@ -104,6 +118,11 @@ export default {
         }
     },
     computed: {
+        totalAvarage: function() {
+            return this.ratings.map(r => r.averageRating).reduce((prev, next) => {
+                return prev + next
+            }) / this.ratings.length
+        },
         chartData: function() {
             let ratings = this.ratings.map(a => a).sort((a, b) => a.averageRating - b.averageRating)
             let data = {
@@ -170,11 +189,11 @@ export default {
                         // deutsches Nummernformat
                         .toString().replace(".", ",")
                     game.highestDifference = Math.max(...gameRatings) - Math.min(...gameRatings)
+                    // Standardabweichung
                     let total = 0
                     for (let i = 0; i < gameRatings.length; i++) {
                         total += Math.pow(gameRatings[i] - game.averageRating, 2)
                     }
-                    console.log(game.name, gameRatings)
                     game.variance = Math.sqrt(total / gameRatings.length)
                 }
                 ratings.push(game)
@@ -187,7 +206,7 @@ export default {
         },
         headers: function() {
             let header = [
-                { name: 'rank', text: 'Platz', value: 'rank' },
+                { name: 'rank', text: 'Platz', value: 'rank', align: 'end' },
                 { name: 'name', text: 'Spiel', value: 'name' },
                 { name: 'averageRating', text: 'Durchschnittsbewertung', value: 'averageRating'},
                 { name: 'highestDifference', text: 'größte Abweichung', value: 'highestDifference'},
@@ -242,3 +261,12 @@ export default {
     }
 }
 </script>
+
+<style>
+tbody tr:nth-of-type(odd) {
+  background-color: rgb(45, 45, 45);
+}
+tbody tr:hover {
+    background-color: rgb(60, 60, 60) !important;
+}
+</style>
