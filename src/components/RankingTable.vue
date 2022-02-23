@@ -1,71 +1,132 @@
 <template>
     <v-container>
-    
         <v-row>
             <v-col>
-                <v-data-table
-                    :headers="headers"
-                    :items="ratings"
-                    :disable-pagination="true"
-                    :hide-default-footer="false"
-                    :sort-by="['rank', 'name']"
-                    class="elevation-1"
-                    dense
-                >
-                    <template v-slot:top>
-                        <v-toolbar
-                            flat
-                        >
-                            <v-toolbar-title>Brettspieleranking von {{ games.length }} Spielen</v-toolbar-title>
-                            <v-divider
-                                class="mx-4"
-                                inset
-                                vertical
-                            ></v-divider>
-                            <v-switch
-                                v-model="showOnlyRankedByAll"
-                                label="Nur Spiele anzeigen, die von allen bewertet wurden"
-                                class="mt-5"
-                            ></v-switch>
-                            <v-spacer></v-spacer>
-                            <set-collection-button @setCollection="setCollection"></set-collection-button>
-                            <add-profile-button @newProfile="addNewProfile"></add-profile-button>
-                        </v-toolbar>
-                    </template>
-                    <template v-slot:item.name="{ item }">
-                        <a :href="item.url" >{{item.name}}</a>
-                    </template>
-                    <template v-slot:item.averageRating="{ item }">
-                        {{ toDecimal(item.averageRating) }}
-                    </template>
-                    <template v-slot:item.variance="{ item }">
-                        {{ toDecimal(item.variance) }}
-                    </template>
-                    <template v-slot:item.highestDifference="{ item }">
-                        {{ toDecimal(item.highestDifference) }}
-                    </template>
-                    <template v-slot:items="{ item }">
-                        <td>{{ item }}</td>
-                    </template>
-                    <template v-slot:body.append="{}">
-                        <tr>
-                            <th class="title"></th>
-                            <th class="title"></th>
-                            <th class="title">Ø {{ toDecimal(totalAvarage) }}</th>
-                            <th class="title"></th>
-                            <th class="title"></th>
-                            <th v-for="user in profiles" :key="user.name">
-                                Ø {{ toDecimal(playerRatings.filter(pr => pr.username === user).reduce((a,b) => a + b.rating, 0) / playerRatings.filter(pr => pr.username === user).length) }}
-                            </th>
-                        </tr>
-                    </template>
-                </v-data-table>
+                <v-card>
+                    <v-toolbar>
+                        Brettspieleranking von {{ ratings.length }} Spielen
+                        <v-divider
+                            class="mx-4"
+                            inset
+                            vertical
+                        ></v-divider>
+                        <v-switch
+                            v-model="showOnlyRankedByAll"
+                            label="von allen bewertet wurden"
+                            class="mt-5 mr-5"
+                        ></v-switch>
+                        <v-switch
+                            v-model="showOnlyNotRankedByAll"
+                            label="nicht von allen bewertet wurden"
+                            class="mt-5"
+                        ></v-switch>
+                        <template v-slot:extension>
+                            <v-text-field
+                                v-model="search"
+                                append-icon="mdi-magnify"
+                                label="Suche"
+                                single-line
+                                hide-details
+                            ></v-text-field>
+                        </template>
+                    </v-toolbar>
+                    <v-data-table
+                        :headers="headers"
+                        :items="ratings"
+                        :search="search"
+                        :disable-pagination="true"
+                        :hide-default-footer="true"
+                        :sort-by="['rank', 'name']"
+                        class="elevation-1"
+                        dense
+                        expanded="true"
+                    >
+                        <template v-slot:item.name="{ item }">
+                            <a :href="item.url" >{{item.name}}</a>
+                        </template>
+                        <template v-slot:item.averageRating="{ item }">
+                            {{ toDecimal(item.averageRating) }}
+                        </template>
+                        <template v-slot:item.variance="{ item }">
+                            {{ toDecimal(item.variance) }}
+                        </template>
+                        <template v-slot:item.highestDifference="{ item }">
+                            {{ toDecimal(item.highestDifference) }}
+                        </template>
+                        <template v-slot:item.M__x="{ item, header }">
+                            <template v-if="item.objectId + header.text in playerRatingStats">
+                                <v-chip v-if="playerRatingStats[item.objectId + header.text].isMin && !playerRatingStats[item.objectId + header.text].isMax" color="red">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <v-chip v-else-if="playerRatingStats[item.objectId + header.text].isMax && !playerRatingStats[item.objectId + header.text].isMin" color="green">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <template v-else>
+                                    {{ item[header.text] }}
+                                </template>
+                            </template>
+                        </template>
+                        <template v-slot:item.Mattreal="{ item, header }">
+                            <template v-if="item.objectId + header.text in playerRatingStats">
+                                <v-chip v-if="playerRatingStats[item.objectId + header.text].isMin && !playerRatingStats[item.objectId + header.text].isMax" color="red">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <v-chip v-else-if="playerRatingStats[item.objectId + header.text].isMax && !playerRatingStats[item.objectId + header.text].isMin" color="green">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <template v-else>
+                                    {{ item[header.text] }}
+                                </template>
+                            </template>
+                        </template>
+                        <template v-slot:item.SeriousScribbler="{ item, header }">
+                            <template v-if="item.objectId + header.text in playerRatingStats">
+                                <v-chip v-if="playerRatingStats[item.objectId + header.text].isMin && !playerRatingStats[item.objectId + header.text].isMax" color="red">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <v-chip v-else-if="playerRatingStats[item.objectId + header.text].isMax && !playerRatingStats[item.objectId + header.text].isMin" color="green">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <template v-else>
+                                    {{ item[header.text] }}
+                                </template>
+                            </template>
+                        </template>
+                        <template v-slot:item.tibosaeinbein="{ item, header }">
+                            <template v-if="item.objectId + header.text in playerRatingStats">
+                                <v-chip v-if="playerRatingStats[item.objectId + header.text].isMin && !playerRatingStats[item.objectId + header.text].isMax" color="red">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <v-chip v-else-if="playerRatingStats[item.objectId + header.text].isMax && !playerRatingStats[item.objectId + header.text].isMin" color="green">
+                                    {{ playerRatingStats[item.objectId + header.text].rating }}
+                                </v-chip>
+                                <template v-else>
+                                    {{ item[header.text] }}
+                                </template>
+                            </template>
+                        </template>
+                        <template v-slot:body.append="{}">
+                            <tr>
+                                <th class="title"></th>
+                                <th class="title"></th>
+                                <th class="title"></th>
+                                <th class="title">Ø {{ toDecimal(totalAvarage) }}</th>
+                                <th class="title"></th>
+                                <th class="title"></th>
+                                <th class="title"></th>
+                                <th v-for="user in profiles" :key="user.name">
+                                    Ø {{ toDecimal(playerRatings.filter(pr => pr.username === user).reduce((a,b) => a + b.rating, 0) / playerRatings.filter(pr => pr.username === user).length) }}
+                                </th>
+                            </tr>
+                        </template>
+                    </v-data-table>
+                </v-card>
             </v-col>
         </v-row>
         <v-row>
             <v-col>
                 <h1>gruppierte Durchschnittsbewertung</h1>
-                <ratings-grouped-chart :chart-data="grouptedRatingChartData"></ratings-grouped-chart>
+                <ratings-grouped-chart :chart-data="groupedRatingChartData"></ratings-grouped-chart>
             </v-col>
         </v-row>
         <v-row>
@@ -86,15 +147,12 @@
 <script>
 import axios from 'axios'
 import xmljs from 'xml-js'
-import SetCollectionButton from './SetCollectionButton.vue'
-import AddProfileButton from './AddProfileButton.vue'
 import RatingOverviewChart from './RatingOverviewChart.vue'
 import RatingsGroupedChart from './RatingsGroupedChart.vue'
+import _ from 'lodash'
 
 export default {
     components: {
-        SetCollectionButton,
-        AddProfileButton,
         RatingOverviewChart,
         RatingsGroupedChart,
     },
@@ -109,16 +167,34 @@ export default {
             this.addNewProfile("tibosaeinbein")
         }
     },
+    watch: {
+        showOnlyRankedByAll(val) {
+            if (val) {
+                this.showOnlyNotRankedByAll = false
+            }
+        },
+        showOnlyNotRankedByAll(val) {
+            if (val) {
+                this.showOnlyRankedByAll = false
+            }
+        }
+    },
     data() {
         return {
             showOnlyRankedByAll: false,
+            showOnlyNotRankedByAll: false,
             profiles: [],
             playerRatings: [],
             games: [],
+            search: "",
+            playerRatingStats: {},
         }
     },
     computed: {
         totalAvarage: function() {
+            if (this.ratings.length <= 0) {
+                return 0
+            }
             return this.ratings.map(r => r.averageRating).reduce((prev, next) => {
                 return prev + next
             }) / this.ratings.length
@@ -151,8 +227,7 @@ export default {
             }
             return data
         },
-
-        grouptedRatingChartData: function() {
+        groupedRatingChartData: function() {
             let groups = Array.from({length: 11}, () => 0)
             this.ratings.forEach(rating => {
                 groups[Math.round(rating.averageRating)]++
@@ -171,6 +246,9 @@ export default {
         },
         ratings: function() {
             let ratings = []
+            if (this.showOnlyRankedByAll && this.showOnlyNotRankedByAll) {
+                return []
+            }
             this.games.forEach(game => {
                 var gameRatings = []
                 let playerRatings = this.playerRatings.filter(
@@ -179,15 +257,21 @@ export default {
                 if (this.showOnlyRankedByAll && playerRatings.length < this.profiles.length) {
                     return
                 }
+                if (this.showOnlyNotRankedByAll && playerRatings.length >= this.profiles.length) {
+                    return
+                }
 
                 playerRatings.forEach(playerRating => {
                     gameRatings.push(playerRating.rating)
+                    this.playerRatingStats[game.objectId + playerRating.username] = {
+                        rating: playerRating.rating,
+                        isMin: (_.minBy(playerRatings, r => r.rating).rating === playerRating.rating),
+                        isMax: (_.maxBy(playerRatings, r => r.rating).rating === playerRating.rating)
+                    }
                     game[playerRating.username] = playerRating.rating
                 })
                 if (gameRatings.length > 0) {
                     game.averageRating = gameRatings.reduce((a, b) => a + b, 0) / gameRatings.length
-                        // deutsches Nummernformat
-                        .toString().replace(".", ",")
                     game.highestDifference = Math.max(...gameRatings) - Math.min(...gameRatings)
                     // Standardabweichung
                     let total = 0
@@ -207,15 +291,18 @@ export default {
         headers: function() {
             let header = [
                 { name: 'rank', text: 'Platz', value: 'rank', align: 'end' },
+                { name: 'RankBGG', text: 'Platz BBG', value: 'rankBGG', align: 'end' },
                 { name: 'name', text: 'Spiel', value: 'name' },
-                { name: 'averageRating', text: 'Durchschnittsbewertung', value: 'averageRating'},
+                { name: 'averageRating', text: 'Ø', value: 'averageRating'},
+                { name: 'averageRatingBGG', text: 'Ø BBG', value: 'averageRatingBGG'},
                 { name: 'highestDifference', text: 'größte Abweichung', value: 'highestDifference'},
-                { name: 'variance', text: 'Standardabweichung', value: 'variance'}
+                { name: 'variance', text: 'Varianz', value: 'variance'},
             ]
             this.profiles.forEach(profile => {
                 header.push({
-                    text: profile,
                     value: profile,
+                    text: profile,
+                    align: 'center'
                 })
             })
             return header;
@@ -253,7 +340,9 @@ export default {
                         this.games.push({
                             objectId: item._attributes.objectid,
                             name: item._attributes.objectname,
-                            url: 'https://boardgamegeek.com/boardgame/' + item._attributes.objectid
+                            url: 'https://boardgamegeek.com/boardgame/' + item._attributes.objectid,
+                            rankBGG: 'TBA',
+                            averageRatingBGG: 'TBA',
                         })
                     })
                 })
