@@ -39,7 +39,6 @@
                         :sort-by="['rank', 'name']"
                         class="elevation-1"
                         dense
-                        expanded="true"
                     >
                         <template v-slot:item.name="{ item }">
                             <a :href="item.url" >{{item.name}}</a>
@@ -157,15 +156,20 @@ export default {
         RatingsGroupedChart,
     },
     mounted() {
-        if (this.games.length <= 0) {
+        const collections = this.$ls.get("collections")
+        console.debug(collections)
+        if (!collections || this.games.length <= 0) {
             this.setCollection('283494')
+            this.$ls.set("collections", [283494])
+        } else {
+            this.setCollection(collections[0])
         }
-        if (this.profiles.length <= 0) {
-            this.addNewProfile("M__x")
-            this.addNewProfile("Mattreal")
-            this.addNewProfile("SeriousScribbler")
-            this.addNewProfile("tibosaeinbein")
+        let profiles = this.$ls.get("profiles")
+        if (!profiles || this.profiles.length <= 0) {
+            profiles = ["M__x", "Mattreal", "SeriousScribbler", "tibosaeinbein"]
+            this.$ls.set("profiles", profiles)
         }
+        profiles.forEach(profile => this.addNewProfile(profile))
     },
     watch: {
         showOnlyRankedByAll(val) {
