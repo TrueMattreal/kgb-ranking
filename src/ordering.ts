@@ -29,7 +29,9 @@ export function sortGames(games: Game[]): Game[] {
   const sortKey = orderBy.attributes.getNamedItem("sort-key")
     ?.value as keyof Game;
   // TODO implement sorting for strings (e.g. game name), NaN and rating by user
-  const sorted = games.sort((a: Game, b: Game) => a[sortKey] - b[sortKey]);
+  const sorted = games.sort(
+    (a: Game, b: Game) => (a[sortKey] as number) - (b[sortKey] as number),
+  );
 
   return ascending ? sorted.reverse() : sorted;
 }
