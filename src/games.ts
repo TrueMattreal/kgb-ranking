@@ -94,8 +94,8 @@ export async function getGamesByCollection(
   profiles: Profile[],
 ): Promise<Game[]> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const url = `https://pniehus.de/bgacache/geeklist/${id}`;
-  const response = await fetch("/assets/geeklist.xml");
+  const url = `/bgacache/geeklist/${id}`;
+  const response = await fetch(url);
 
   const content = await response.text();
   const collection: Geeklist = JSON.parse(xml2json(content, { compact: true }));
