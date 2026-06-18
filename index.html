@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kgb-ranking</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+
+  <body>
+    <label>
+      <input type="checkbox" id="united-we-stand" />
+      von allen bewertet wurde
+    </label>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Platz <button id="button-order-place" sort-key="rank" /></th>
+          <th>Spiel <button id="button-order-game" sort-key="name" /></th>
+          <th>
+            Ø <button id="button-order-average" sort-key="averageRating" />
+          </th>
+          <th>
+            größte Abweichung
+            <button
+              id="button-order-difference"
+              sort-key="greatestDifference"
+            />
+          </th>
+          <th>
+            Varianz
+            <button id="button-order-variance" sort-key="standardDeviation" />
+          </th>
+          <th>M__x <button id="button-order-M__x" sort-key="" /></th>
+          <th>Mattreal <button id="button-order-Mattreal" sort-key="" /></th>
+          <th>
+            SeriousScribbler
+            <button id="button-order-SeriousScribbler" sort-key="" />
+          </th>
+          <th>
+            tibosaeinbein <button id="button-order-tibosaeinbein" sort-key="" />
+          </th>
+        </tr>
+      </thead>
+
+      <tbody id="our-table-body"></tbody>
+    </table>
+  </body>
+</html>
