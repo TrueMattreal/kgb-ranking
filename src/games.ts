@@ -93,7 +93,6 @@ export async function getGamesByCollection(
   id: number,
   profiles: Profile[],
 ): Promise<Game[]> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const url = `/bgacache/geeklist/${id}`;
   const response = await fetch(url);
 

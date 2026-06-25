@@ -37,7 +37,6 @@ export type Rating = {
 };
 
 export async function getProfileByName(username: string): Promise<Profile> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const url = `/bgacache/collection/${username}`;
   const response = await fetch(url);
 
