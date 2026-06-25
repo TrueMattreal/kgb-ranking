@@ -5,7 +5,9 @@ export const PROFILE_NAMES = [
   "Mattreal",
   "SeriousScribbler",
   "tibosaeinbein",
-];
+] as const;
+
+export type ProfileName = (typeof PROFILE_NAMES)[number];
 
 type ProfileItem = {
   _attributes: {
@@ -27,7 +29,7 @@ type ProfileList = {
 };
 
 export type Profile = {
-  username: string;
+  username: ProfileName;
   ratings: Rating[];
 };
 
@@ -45,7 +47,7 @@ export async function getProfileByName(username: string): Promise<Profile> {
     xml2json(content, { compact: true }),
   );
 
-  const profile: Profile = { username, ratings: [] };
+  const profile: Profile = { username: username as ProfileName, ratings: [] };
 
   collection.items.item.forEach((item: ProfileItem) => {
     profile.ratings.push({

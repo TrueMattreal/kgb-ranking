@@ -47,8 +47,8 @@ export function rebuildTableBody() {
     appendCell(row, "" + game.averageRating.toFixed(2), "text-right");
     appendCell(row, "" + game.greatestDifference.toFixed(2), "text-right");
     appendCell(row, "" + game.standardDeviation.toFixed(2), "text-right");
-    for (const rating of game.ratings) {
-      appendCell(row, "" + (rating.rating ?? "-"), "text-right");
+    for (const rating of Object.values(game.ratings)) {
+      appendCell(row, "" + (rating ?? "-"), "text-right");
     }
     tableBody.appendChild(row);
   });

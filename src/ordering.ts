@@ -25,13 +25,38 @@ orderCriterions.forEach((node) => {
 
 orderBy.innerText = "↓";
 
+function sortByPointer(pointer: string[]) {
+  return (gameA: Game, gameB: Game) => {
+    // eslint-disable-next-line
+    let nestedA: any = gameA;
+    // eslint-disable-next-line
+    let nestedB: any = gameB;
+
+    for (const part of pointer) {
+      nestedA = part in nestedA ? nestedA[part] : nestedA;
+      nestedB = nestedB[part];
+    }
+
+    return ((nestedA as number) ?? 0) - ((nestedB as number) ?? 0);
+  };
+}
+
+function sortByKey(key: keyof Game) {
+  return (a: Game, b: Game) => (a[key] as number) - (b[key] as number);
+}
+
 export function sortGames(games: Game[]): Game[] {
-  const sortKey = orderBy.attributes.getNamedItem("sort-key")
-    ?.value as keyof Game;
-  // TODO implement sorting for strings (e.g. game name), NaN and rating by user
-  const sorted = games.sort(
-    (a: Game, b: Game) => (a[sortKey] as number) - (b[sortKey] as number),
-  );
+  const sortKey = orderBy.attributes.getNamedItem("sort-key")?.value;
+
+  if (!sortKey) {
+    return games;
+  }
+
+  const sortFunction = sortKey.includes("/")
+    ? sortByPointer(sortKey.split("/"))
+    : sortByKey(sortKey as keyof Game);
+
+  const sorted = games.sort(sortFunction);
 
   return ascending ? sorted.reverse() : sorted;
 }

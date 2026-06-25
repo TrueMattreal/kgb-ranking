@@ -1,5 +1,5 @@
 import { xml2json } from "xml-js";
-import type { Profile } from "./profiles";
+import type { Profile, ProfileName } from "./profiles";
 
 type GeeklistItem = {
   _attributes: {
@@ -14,15 +14,15 @@ type Geeklist = {
   };
 };
 
-type UserRating = { rating: number | undefined; user: string };
+type UserRatings = Record<ProfileName, number | undefined>;
 
-function calculateAverageUserRating(ratings: UserRating[]): number {
+function calculateAverageUserRating(ratings: UserRatings): number {
   let total = 0;
   let count = 0;
 
-  for (const rating of ratings) {
-    if (rating.rating == undefined) continue;
-    total += rating.rating;
+  for (const rating of Object.values(ratings)) {
+    if (rating == undefined) continue;
+    total += rating;
     count += 1;
   }
 
@@ -36,14 +36,14 @@ function calculateAverageUserRating(ratings: UserRating[]): number {
   return total / count;
 }
 
-function calculateGreatestDifference(ratings: UserRating[]): number {
+function calculateGreatestDifference(ratings: UserRatings): number {
   let highest = undefined;
   let lowest = undefined;
 
-  for (const rating of ratings) {
-    if (rating.rating == undefined) continue;
-    highest = Math.max(highest ?? rating.rating, rating.rating);
-    lowest = Math.min(lowest ?? rating.rating, rating.rating);
+  for (const rating of Object.values(ratings)) {
+    if (rating == undefined) continue;
+    highest = Math.max(highest ?? rating, rating);
+    lowest = Math.min(lowest ?? rating, rating);
   }
 
   if (highest != undefined && lowest != undefined) {
@@ -54,15 +54,15 @@ function calculateGreatestDifference(ratings: UserRating[]): number {
 }
 
 function calculateStandardDeviation(
-  ratings: UserRating[],
+  ratings: UserRatings,
   average: number,
 ): number {
   let total = 0;
   let count = 0;
 
-  for (const rating of ratings) {
-    if (rating.rating == undefined) continue;
-    total += Math.pow(rating.rating - average, 2);
+  for (const rating of Object.values(ratings)) {
+    if (rating == undefined) continue;
+    total += Math.pow(rating - average, 2);
     count += 1;
   }
 
@@ -81,7 +81,7 @@ export type Game = {
   objectId: number;
   name: string;
   url: string;
-  ratings: UserRating[];
+  ratings: UserRatings;
   averageRating: number;
   greatestDifference: number;
   standardDeviation: number;
@@ -102,13 +102,12 @@ export async function getGamesByCollection(
   let unrankedGames: UnplacedGame[] = collection.geeklist.item.map(
     (item: GeeklistItem) => {
       const objectId = parseInt(item._attributes.objectid);
-      const ratings = profiles.map((profile) => {
-        return {
-          user: profile.username,
-          rating: profile.ratings.find((rating) => rating.objectId == objectId)
-            ?.rating,
-        };
-      });
+      const ratings = profiles.reduce((ratings, profile) => {
+        ratings[profile.username] = profile.ratings.find(
+          (rating) => rating.objectId == objectId,
+        )?.rating;
+        return ratings;
+      }, {} as UserRatings);
 
       const average = calculateAverageUserRating(ratings);
 
@@ -129,7 +128,7 @@ export async function getGamesByCollection(
 
   if (filterNotRatedByAll) {
     unrankedGames = unrankedGames.filter((game) =>
-      game.ratings.every((userRating) => userRating.rating != undefined),
+      Object.values(game.ratings).every((rating) => rating != undefined),
     );
   }
 
