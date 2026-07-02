@@ -3,6 +3,7 @@ import { getGamesByCollection, type Game } from "./games.ts";
 import { getProfileByName, PROFILE_NAMES, type Profile } from "./profiles.ts";
 import "./ordering.ts";
 import { sortGames } from "./ordering.ts";
+import { calculateAverageRatingPerUser } from "./averageRatingPerUser.ts";
 
 const tableBody =
   document.querySelector<HTMLTableSectionElement>("#our-table-body")!;
@@ -52,6 +53,17 @@ export function rebuildTableBody() {
     }
     tableBody.appendChild(row);
   });
+
+  const row = document.createElement("tr");
+  appendCell(row, "");
+  appendCell(row, "");
+  appendCell(row, "");
+  appendCell(row, "");
+  appendCell(row, "");
+  calculateAverageRatingPerUser(games).forEach((rating) => {
+    appendCell(row, `Ø ${rating.toFixed(2)}`, "text-right");
+  });
+  tableBody.appendChild(row);
 }
 
 fetchLists();
