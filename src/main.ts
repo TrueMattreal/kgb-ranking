@@ -11,13 +11,13 @@ import {
 const tableBody =
   document.querySelector<HTMLTableSectionElement>("#our-table-body")!;
 
-function appendCell(row: HTMLTableRowElement, content: string, css?: string) {
+function createTableCell(content: string, css?: string): HTMLTableCellElement {
   const cell = document.createElement("td");
   cell.innerText = content;
   if (css) {
     cell.className = css;
   }
-  row.appendChild(cell);
+  return cell;
 }
 
 let profiles: Profile[] = [];
@@ -42,33 +42,40 @@ export function rebuildTableBody() {
   games = sortGames(games);
   games.forEach((game) => {
     const row = document.createElement("tr");
-    appendCell(row, "" + game.rank, "text-right");
+    row.appendChild(createTableCell("" + game.rank, "text-right"));
 
     const cell = document.createElement("td");
     cell.innerHTML = `<a href="${game.url}">${game.name}</a>`;
     row.appendChild(cell);
 
-    appendCell(row, "" + game.averageRating.toFixed(2), "text-right");
-    appendCell(row, "" + game.greatestDifference.toFixed(2), "text-right");
-    appendCell(row, "" + game.standardDeviation.toFixed(2), "text-right");
+    row.appendChild(
+      createTableCell(game.averageRating.toFixed(2), "text-right"),
+    );
+    row.appendChild(
+      createTableCell(game.greatestDifference.toFixed(2), "text-right"),
+    );
+    row.appendChild(
+      createTableCell(game.standardDeviation.toFixed(2), "text-right"),
+    );
     for (const rating of Object.values(game.ratings)) {
-      appendCell(row, "" + (rating ?? "-"), "text-right");
+      row.appendChild(createTableCell("" + (rating ?? "-"), "text-right"));
     }
     tableBody.appendChild(row);
   });
 
   const row = document.createElement("tr");
-  appendCell(row, "");
-  appendCell(row, "");
-  appendCell(
-    row,
-    `Ø ${calculateTotalAverageRating(games).toFixed(2)}`,
-    "text-right",
+  row.appendChild(createTableCell(""));
+  row.appendChild(createTableCell(""));
+  row.appendChild(
+    createTableCell(
+      `Ø ${calculateTotalAverageRating(games).toFixed(2)}`,
+      "text-right",
+    ),
   );
-  appendCell(row, "");
-  appendCell(row, "");
+  row.appendChild(createTableCell(""));
+  row.appendChild(createTableCell(""));
   calculateAverageRatingPerUser(games).forEach((rating) => {
-    appendCell(row, `Ø ${rating.toFixed(2)}`, "text-right");
+    row.appendChild(createTableCell(`Ø ${rating.toFixed(2)}`, "text-right"));
   });
   tableBody.appendChild(row);
 }
