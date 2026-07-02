@@ -29,3 +29,9 @@ export function calculateAverageRatingPerUser(games: Game[]): Array<number> {
       : 0,
   );
 }
+
+export function calculateTotalAverageRating(games: Game[]): number {
+  return (
+    games.reduce((total, game) => total + game.averageRating, 0) / games.length
+  );
+}

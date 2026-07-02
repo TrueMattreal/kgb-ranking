@@ -3,7 +3,10 @@ import { getGamesByCollection, type Game } from "./games.ts";
 import { getProfileByName, PROFILE_NAMES, type Profile } from "./profiles.ts";
 import "./ordering.ts";
 import { sortGames } from "./ordering.ts";
-import { calculateAverageRatingPerUser } from "./averageRatingPerUser.ts";
+import {
+  calculateAverageRatingPerUser,
+  calculateTotalAverageRating,
+} from "./averages.ts";
 
 const tableBody =
   document.querySelector<HTMLTableSectionElement>("#our-table-body")!;
@@ -57,7 +60,11 @@ export function rebuildTableBody() {
   const row = document.createElement("tr");
   appendCell(row, "");
   appendCell(row, "");
-  appendCell(row, "");
+  appendCell(
+    row,
+    `Ø ${calculateTotalAverageRating(games).toFixed(2)}`,
+    "text-right",
+  );
   appendCell(row, "");
   appendCell(row, "");
   calculateAverageRatingPerUser(games).forEach((rating) => {
