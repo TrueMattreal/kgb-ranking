@@ -63,21 +63,14 @@ export function rebuildTableBody() {
     tableBody.appendChild(row);
   });
 
-  const row = document.createElement("tr");
-  row.appendChild(createTableCell(""));
-  row.appendChild(createTableCell(""));
-  row.appendChild(
-    createTableCell(
-      `Ø ${calculateTotalAverageRating(games).toFixed(2)}`,
-      "text-right",
-    ),
-  );
-  row.appendChild(createTableCell(""));
-  row.appendChild(createTableCell(""));
-  calculateAverageRatingPerUser(games).forEach((rating) => {
-    row.appendChild(createTableCell(`Ø ${rating.toFixed(2)}`, "text-right"));
+  document.getElementById("cell-total-average-ranking")!.innerText =
+    `Ø ${calculateTotalAverageRating(games).toFixed(2)}`;
+
+  calculateAverageRatingPerUser(games).forEach((rating, index) => {
+    document.getElementById(
+      "cell-average-user-ranking-" + PROFILE_NAMES[index],
+    )!.innerText = `Ø ${rating.toFixed(2)}`;
   });
-  tableBody.appendChild(row);
 }
 
 fetchLists();

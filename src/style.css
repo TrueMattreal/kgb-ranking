@@ -49,6 +49,10 @@ td {
   padding-right: 0.5rem;
 }
 
+tfoot {
+  background-color: rgb(30, 30, 30);
+}
+
 .text-right {
   text-align: end;
 }
