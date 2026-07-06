@@ -26,14 +26,23 @@ table {
   width: 90%;
 }
 
-thead {
+.sticky-header {
   background-color: rgb(30, 30, 30);
   position: sticky;
   top: 0;
 }
 
+.centered-buttons {
+  display: flex;
+  justify-content: center;
+}
+
 th {
   padding: 0.5rem;
+  :where(& > :not(:last-child)) {
+    margin-inline-start: 0.5rem;
+    margin-inline-end: 0.5rem;
+  }
 }
 
 tbody tr:nth-of-type(odd) {

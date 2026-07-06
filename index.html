@@ -9,16 +9,59 @@
   </head>
 
   <body>
-    <label>
-      <input type="checkbox" id="united-we-stand" />
-      von allen bewertet wurde
-    </label>
+    <div>
+      <label>
+        <input type="checkbox" id="united-we-stand" />
+        von allen bewertet wurde
+      </label>
+    </div>
 
     <table>
       <thead>
         <tr>
+          <td></td>
+          <td>
+            <div class="centered-buttons">
+              <button id="button-reload-collection">Reload Collection</button>
+            </div>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <div class="centered-buttons">
+              <button id="button-reload-M__x">Reload M__x</button>
+            </div>
+          </td>
+          <td class="centered-buttons">
+            <div class="centered-buttons">
+              <button id="button-reload-Mattreal">Reload Mattreal</button>
+            </div>
+          </td>
+          <td>
+            <div class="centered-buttons">
+              <button id="button-reload-SeriousScribbler">
+                Reload SeriousScribbler
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="centered-buttons">
+              <button id="button-reload-tibosaeinbein">
+                Reload tibosaeinbein
+              </button>
+            </div>
+          </td>
+        </tr>
+      </thead>
+
+      <thead class="sticky-header">
+        <tr>
           <th>Platz <button id="button-order-place" sort-key="rank" /></th>
-          <th>Spiel <button id="button-order-game" sort-key="name" /></th>
+          <th>
+            Spiel <button id="button-order-game" sort-key="name" />
+            <button>🗘</button>
+          </th>
           <th>
             Ø <button id="button-order-average" sort-key="averageRating" />
           </th>

@@ -20,6 +20,8 @@ function createTableCell(content: string, css?: string): HTMLTableCellElement {
   return cell;
 }
 
+const KBG_COLLECTION_ID = 283494;
+
 let profiles: Profile[] = [];
 let games: Game[] = [];
 
@@ -30,7 +32,7 @@ async function fetchLists() {
   }
   console.log("profiles", profiles);
 
-  games = await getGamesByCollection(283494, profiles);
+  games = await getGamesByCollection(KBG_COLLECTION_ID, profiles);
   console.log("games", games);
 
   rebuildTableBody();
@@ -81,3 +83,19 @@ document
     games = await getGamesByCollection(283494, profiles);
     rebuildTableBody();
   });
+
+document
+  .querySelector<HTMLButtonElement>("#button-reload-collection")!
+  .addEventListener("click", () =>
+    fetch(`/bgacache/geeklist/${KBG_COLLECTION_ID}?force=1`).then(() =>
+      fetchLists(),
+    ),
+  );
+
+PROFILE_NAMES.forEach((name) =>
+  document
+    .querySelector<HTMLButtonElement>("#button-reload-" + name)!
+    .addEventListener("click", () =>
+      fetch(`/bgacache/collection/${name}?force=1`).then(() => fetchLists()),
+    ),
+);
