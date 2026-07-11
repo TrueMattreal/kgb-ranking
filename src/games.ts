@@ -76,18 +76,18 @@ function calculateStandardDeviation(
   return Math.sqrt(total / count);
 }
 
-export type Game = {
-  rank: number;
-  objectId: number;
-  name: string;
-  url: string;
-  ratings: UserRatings;
-  averageRating: number;
+export class Game {
+  rank!: number;
+  objectId!: number;
+  name!: string;
+  url!: string;
+  ratings!: UserRatings;
+  averageRating!: number;
   highestRating: number | undefined;
   lowestRating: number | undefined;
-  greatestDifference: number;
-  standardDeviation: number;
-};
+  greatestDifference!: number;
+  standardDeviation!: number;
+}
 
 type UnplacedGame = Omit<Game, "rank">;
 

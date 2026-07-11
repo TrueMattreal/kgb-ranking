@@ -1,11 +1,13 @@
 import "./style.css";
-import { getGamesByCollection, type Game } from "./games.ts";
+import { getGamesByCollection, Game } from "./games.ts";
 import { getProfileByName, PROFILE_NAMES, type Profile } from "./profiles.ts";
 import "./ordering.ts";
 import { rebuildTableBody } from "./table/table.ts";
 import { sortBy } from "./ordering.ts";
 
 const KBG_COLLECTION_ID = 283494;
+
+const CACHED_GAMES_KEY = "cached-games";
 
 let profiles: Profile[] = [];
 let games: Game[] = [];
@@ -15,10 +17,9 @@ async function fetchLists() {
   for (const name of PROFILE_NAMES) {
     profiles.push(await getProfileByName(name));
   }
-  console.log("profiles", profiles);
 
   games = await getGamesByCollection(KBG_COLLECTION_ID, profiles);
-  console.log("games", games);
+  localStorage.setItem(CACHED_GAMES_KEY, JSON.stringify(games));
 
   rebuildTableBody(games);
 }
@@ -62,7 +63,30 @@ function addOrderByListeners() {
   });
 }
 
+function loadCachedGames() {
+  const cachedGames = localStorage.getItem(CACHED_GAMES_KEY);
+  if (!cachedGames) return;
+  try {
+    const parsedGames = JSON.parse(cachedGames);
+    if (Array.isArray(parsedGames)) {
+      games = parsedGames;
+    } else {
+      console.error("Failed to parse cached games\n", cachedGames);
+    }
+  } catch (e) {
+    console.error("Error while parsing cached games from local story\n", e);
+  }
+}
+
 function setup() {
+  try {
+    loadCachedGames();
+
+    rebuildTableBody(games);
+  } catch (e) {
+    console.error("Failed to build table from cached games\n", e);
+  }
+
   fetchLists();
 
   addFilterRatedByAllListener();
