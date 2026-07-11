@@ -39,9 +39,17 @@ export function rebuildTableBody(games: Game[]) {
     row.appendChild(
       createTableCell(game.standardDeviation.toFixed(2), "text-right"),
     );
+
     for (const rating of Object.values(game.ratings)) {
-      row.appendChild(createTableCell("" + (rating ?? "-"), "text-right"));
+      const css = ["text-right"];
+      if (game.highestRating && game.highestRating == rating) {
+        css.push("highest-user-rating");
+      } else if (game.lowestRating && game.lowestRating == rating) {
+        css.push("lowest-user-rating");
+      }
+      row.appendChild(createTableCell("" + (rating ?? "-"), css.join(" ")));
     }
+
     tableBody.appendChild(row);
   });
 

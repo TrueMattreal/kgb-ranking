@@ -83,6 +83,8 @@ export type Game = {
   url: string;
   ratings: UserRatings;
   averageRating: number;
+  highestRating: number | undefined;
+  lowestRating: number | undefined;
   greatestDifference: number;
   standardDeviation: number;
 };
@@ -110,6 +112,16 @@ export async function getGamesByCollection(
       }, {} as UserRatings);
 
       const average = calculateAverageUserRating(ratings);
+      const lowest = Object.values(ratings).reduce(
+        (currentLowest, rating) =>
+          rating ? Math.min(currentLowest ?? rating, rating) : currentLowest,
+        undefined,
+      );
+      const highest = Object.values(ratings).reduce(
+        (currentHighest, rating) =>
+          rating ? Math.max(currentHighest ?? rating, rating) : currentHighest,
+        undefined,
+      );
 
       return {
         objectId: objectId,
@@ -117,6 +129,8 @@ export async function getGamesByCollection(
         url: "https://boardgamegeek.com/boardgame/" + item._attributes.objectid,
         ratings: ratings,
         averageRating: average,
+        lowestRating: lowest,
+        highestRating: highest,
         greatestDifference: calculateGreatestDifference(ratings),
         standardDeviation: calculateStandardDeviation(ratings, average),
       };

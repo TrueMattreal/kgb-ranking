@@ -65,3 +65,11 @@ tfoot {
 .text-right {
   text-align: end;
 }
+
+.lowest-user-rating {
+  color: rgb(255, 49, 49);
+}
+
+.highest-user-rating {
+  color: rgb(74, 187, 30);
+}

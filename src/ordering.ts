@@ -37,7 +37,7 @@ function sortByKey(key: BasicGameKey) {
   return (a: Game, b: Game) => compare(a[key], b[key]);
 }
 
-function compare<T extends string | number>(a: T, b: T): number {
+function compare<T extends string | number | undefined>(a: T, b: T): number {
   switch (typeof a) {
     case "string":
       return a.localeCompare((b as string) ?? "");
