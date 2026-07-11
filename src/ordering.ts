@@ -1,29 +1,18 @@
 import type { Game } from "./games";
-import { rebuildTableBody } from "./main";
 
-const orderCriterions = Array.from(
-  document.querySelectorAll<HTMLButtonElement>("[id^='button-order-']"),
-);
-
-let orderBy = orderCriterions[0];
+let orderBy: HTMLButtonElement | undefined = undefined;
 let ascending = false;
 
-orderCriterions.forEach((node) => {
-  node.innerText = "↕";
-  node.addEventListener("click", () => {
-    if (node == orderBy) {
-      ascending = !ascending;
-    } else {
-      orderBy.innerText = "↕";
-      orderBy = node;
-    }
+export function sortBy(node: HTMLButtonElement) {
+  if (node == orderBy) {
+    ascending = !ascending;
+  } else {
+    if (orderBy) orderBy.innerText = "↕";
+    orderBy = node;
+  }
 
-    node.innerText = ascending ? "↑" : "↓";
-    rebuildTableBody();
-  });
-});
-
-orderBy.innerText = "↓";
+  node.innerText = ascending ? "↑" : "↓";
+}
 
 function sortByPointer(pointer: string[]) {
   return (gameA: Game, gameB: Game) => {
@@ -46,7 +35,7 @@ function sortByKey(key: keyof Game) {
 }
 
 export function sortGames(games: Game[]): Game[] {
-  const sortKey = orderBy.attributes.getNamedItem("sort-key")?.value;
+  const sortKey = orderBy?.attributes.getNamedItem("sort-key")?.value;
 
   if (!sortKey) {
     return games;
