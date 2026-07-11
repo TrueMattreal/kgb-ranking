@@ -26,12 +26,26 @@ function sortByPointer(pointer: string[]) {
       nestedB = nestedB[part];
     }
 
-    return ((nestedA as number) ?? 0) - ((nestedB as number) ?? 0);
+    return compare(nestedA, nestedB);
   };
 }
 
-function sortByKey(key: keyof Game) {
-  return (a: Game, b: Game) => (a[key] as number) - (b[key] as number);
+// ratings is omitted since UserRatings are handled by `sortByPointer`
+type BasicGameKey = keyof Omit<Game, "ratings">;
+
+function sortByKey(key: BasicGameKey) {
+  return (a: Game, b: Game) => compare(a[key], b[key]);
+}
+
+function compare<T extends string | number>(a: T, b: T): number {
+  switch (typeof a) {
+    case "string":
+      return a.localeCompare((b as string) ?? "");
+    case "number":
+      return a - ((b as number) ?? 0);
+    default:
+      return -1;
+  }
 }
 
 export function sortGames(games: Game[]): Game[] {
@@ -43,7 +57,7 @@ export function sortGames(games: Game[]): Game[] {
 
   const sortFunction = sortKey.includes("/")
     ? sortByPointer(sortKey.split("/"))
-    : sortByKey(sortKey as keyof Game);
+    : sortByKey(sortKey as BasicGameKey);
 
   const sorted = games.sort(sortFunction);
 
