@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "check": "npx prettier --check index.html *.json src/ && npx eslint ."
+    "check": "npx prettier --check index.html *.json src/ && npx eslint src/"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
